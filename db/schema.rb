@@ -15,7 +15,6 @@ ActiveRecord::Schema.define(version: 3) do
   create_table "apps", force: :cascade do |t|
     t.string "name"
     t.string "category"
-    t.integer "total_downloads"
     t.integer "total_reviews"
     t.integer "avg_rating"
     t.integer "user_id"

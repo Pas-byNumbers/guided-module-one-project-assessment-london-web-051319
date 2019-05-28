@@ -4,7 +4,6 @@ class CreateApps < ActiveRecord::Migration[5.2]
     create_table :apps do |t|
       t.string :name
       t.string :category
-      t.integer :total_downloads
       t.integer :total_reviews
       t.integer :avg_rating
       t.integer :user_id
