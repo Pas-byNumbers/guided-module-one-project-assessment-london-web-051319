@@ -4,4 +4,4 @@ puts "run.rb has been executed"
 
 cli = CommandLineInterface.new
 cli.greet
-cli.new_user
+cli.debug?

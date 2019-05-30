@@ -80,10 +80,13 @@ class CommandLineInterface
   end
 
   def user_options
+    puts "_____________"
     puts 'What would you like to do next?'
+    puts "_____________"
     puts "Search through Apps? Type 'choose_app'"
     puts "Review an App? Type 'review_app'"
     puts "Check your reviews by typing 'my_reviews'"
+    puts "Search reviews per App by typing 'find_reviews'"
     response = gets.chomp
       if response == 'choose_app'
         choose_app
@@ -91,6 +94,8 @@ class CommandLineInterface
         review_app
       elsif response == 'my_reviews'
         my_reviews
+      elsif response == 'find_reviews'
+        find_reviews
       end
 
   end
@@ -124,7 +129,48 @@ class CommandLineInterface
     user_options
   end
 
+def find_reviews
+  puts "Which app's reviews would you like to check?"
+  response = gets.chomp
+  app_choice = App.find_by_name(response)
 
+
+  current_reviews = Review.where(app_id: app_choice.id)
+  puts "_______"
+  puts app_choice.name
+  print "Average Rating: #{app_choice.avg_rating}"
+  puts " "
+  puts "_______"
+
+
+  current_reviews.map do |review|
+    print "Review: "
+    print review.content
+    print " | "
+    print "Rating: "
+    print review.rating
+    print " | "
+    print "User: "
+    print review.user_id
+    puts " "
+    puts " "
+
+  end
+
+
+end
+
+
+def debug?
+  puts "Do you want to debug?"
+  response = gets.chomp
+  if response == 'Y'
+    user_options
+  else
+    puts "Let's carry on then"
+    new_user
+  end
+end
 
   def new_user
     @current_user = User.new
