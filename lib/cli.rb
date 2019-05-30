@@ -4,6 +4,11 @@ require_relative '../config/environment'
 require 'pry'
 
 class CommandLineInterface
+  def initialize
+    @current_user = nil
+  end
+
+
   @@user = nil
 
   def greet
@@ -71,30 +76,71 @@ class CommandLineInterface
       puts 'Invalid input, try again!'
       choose_app
     end
+    user_options
   end
 
   def user_options
     puts 'What would you like to do next?'
     puts "Search through Apps? Type 'choose_app'"
+    puts "Review an App? Type 'review_app'"
+    puts "Check your reviews by typing 'my_reviews'"
     response = gets.chomp
-    choose_app if response == 'choose_app'
+      if response == 'choose_app'
+        choose_app
+      elsif response == 'review_app'
+        review_app
+      elsif response == 'my_reviews'
+        my_reviews
+      end
+
   end
 
+  def review_app
+    new_review = Review.new
+    puts "Type the name of the App you'd like to review"
+    app_choice = gets.chomp
+    puts "You have chosen to review #{app_choice}"
+    puts "Please write your review"
+    new_review_content = gets.chomp
+    puts "Please give a rating beween 1 and 5"
+    new_review_rating = gets.chomp
+    puts "This is what you've submitted so far"
+    puts app_choice
+    puts new_review_content
+    puts "Rating: #{new_review_rating}"
+    puts "Would you like to save this review?"
+    response = gets.chomp
+    if response == 'Y'
+      new_review.content = new_review_content
+      new_review.rating = new_review_rating
+      new_review.user_id = @current_user.id
+      new_review.app_id = App.find_by_name(app_choice).id
+      new_review.save
+      puts 'Your review has been saved!'
+    else
+      puts 'Lets try again'
+      review_app
+    end
+    user_options
+  end
+
+
+
   def new_user
-    current_user = User.new
+    @current_user = User.new
     puts 'Please enter your name'
     new_name = gets.chomp
     puts 'Please enter your email'
     new_email = gets.chomp
-    current_user.name = new_name
-    current_user.email = new_email
+    @current_user.name = new_name
+    @current_user.email = new_email
     puts 'This is the information you entered? Input Y for yes and N for no'
-    puts current_user.name
-    puts current_user.email
+    puts @current_user.name
+    puts @current_user.email
     puts 'Is this correct?'
     response = gets.chomp
     if response == 'Y'
-      current_user.save
+      @current_user.save
       puts 'Your information has been saved!'
     else
       puts 'Please try again'
