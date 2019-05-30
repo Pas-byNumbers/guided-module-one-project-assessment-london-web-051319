@@ -144,6 +144,9 @@ def find_reviews
 
 
   current_reviews.map do |review|
+    User.all.select do |t|
+      if t.id == review.user_id
+    puts " "
     print "Review: "
     print review.content
     print " | "
@@ -151,7 +154,10 @@ def find_reviews
     print review.rating
     print " | "
     print "User: "
-    print review.user_id
+
+      puts t.name
+    end
+    end
     puts " "
     puts " "
 
