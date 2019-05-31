@@ -86,6 +86,8 @@ class CommandLineInterface
     puts "Review an App? Type 'review_app'"
     puts "Check your reviews by typing 'my_reviews'"
     puts "Search reviews per App by typing 'find_reviews'"
+    puts "Edit a review with 'change_review'"
+    puts "Delete a review with 'delete_review'"
     response = gets.chomp
     if response == 'choose_app'
       choose_app
@@ -95,6 +97,11 @@ class CommandLineInterface
       my_reviews
     elsif response == 'find_reviews'
       find_reviews
+    elsif response == 'change_review'
+      change_review
+    elsif response == 'delete_review'
+      delete_review
+
     end
   end
 
@@ -142,7 +149,7 @@ class CommandLineInterface
 
       current_app.avg_rating = new_avg
       current_app.save
-      binding.pry
+
       puts 'Your review has been saved!'
 
     else
@@ -182,7 +189,172 @@ class CommandLineInterface
       puts ' '
       puts ' '
     end
+    user_options
       end
+
+  def my_reviews
+    puts '------------'
+    puts 'Here are your reviews'
+    puts '------------'
+    Review.all.map do |review|
+      next unless review.user_id == @current_user.id
+
+      App.all.select do |t|
+        next unless t.id == review.app_id
+
+        puts ' '
+        print 'App: '
+        print t.name
+        print ' | '
+        print 'Review: '
+        print review.content
+        print ' | '
+        print 'Rating: '
+        print review.rating
+        puts ' '
+        puts ' '
+      end
+    end
+    puts "Press any key to return to the Main Menu"
+    gets.chomp
+    user_options
+  end
+
+  def change_review
+    puts '------------'
+    puts 'Here are your reviews'
+    puts '------------'
+    Review.all.map do |review|
+      next unless review.user_id == @current_user.id
+
+      App.all.select do |t|
+        next unless t.id == review.app_id
+
+        puts ' '
+        print 'App: '
+        print t.name
+        print ' | '
+        print 'Review: '
+        print review.content
+        print ' | '
+        print 'Rating: '
+        print review.rating
+        puts ' '
+        puts ' '
+      end
+    end
+    puts '------------'
+    puts 'Which review would you like to change?'
+    puts 'Please enter the App name'
+
+    app_rating_total = []
+    new_review = Review.new
+    app_choice = gets.chomp
+    current_app = App.find_by_name(app_choice)
+
+    Review.all.select do |review|
+      review.destroy if (review.id == @current_user.review_id && review.app_id == current_app.id)
+
+        
+
+    end
+    puts "____"
+    puts "You have chosen to change your review for #{app_choice}"
+    puts 'Please write your review'
+    new_review_content = gets.chomp
+    puts 'Please give a rating beween 1 and 5'
+    new_review_rating = gets.chomp
+    puts "This is what you've submitted so far"
+    puts app_choice
+    puts new_review_content
+    puts "Rating: #{new_review_rating}"
+    puts 'Would you like to save this review?'
+    response = gets.chomp
+    if response == 'Y'
+      new_review.content = new_review_content
+      new_review.rating = new_review_rating
+      new_review.user_id = @current_user.id
+      new_review.app_id = current_app.id
+      new_review.save
+
+      # update User Records
+      @current_user.app_id = new_review.app_id
+      @current_user.review_id = new_review.id
+
+      # update App Records
+      current_app.user_id = @current_user.id
+      current_app.review_id = new_review.id
+
+      # update total review count in Apps
+      current_app.total_reviews += 1
+
+      # update avg rating in Apps
+      Review.all.select do |review|
+        app_rating_total << review.rating if review.app_id == new_review.app_id
+      end
+
+      new_avg = app_rating_total.sum / app_rating_total.size
+
+      current_app.avg_rating = new_avg
+      current_app.save
+
+      puts 'Your review has been saved!'
+
+    else
+      puts 'Lets try again'
+      review_app
+    end
+    user_options
+  end
+
+  def delete_review
+    app_rating_total = []
+    puts '------------'
+    puts 'Here are your reviews'
+    puts '------------'
+    Review.all.map do |review|
+      next unless review.user_id == @current_user.id
+
+      App.all.select do |t|
+        next unless t.id == review.app_id
+
+        puts ' '
+        print 'App: '
+        print t.name
+        print ' | '
+        print 'Review: '
+        print review.content
+        print ' | '
+        print 'Rating: '
+        print review.rating
+        puts ' '
+        puts ' '
+      end
+    end
+    puts '------------'
+    puts 'Which review would you like to delete?'
+    puts 'Please enter the App name'
+    app_choice = gets.chomp
+    current_app = App.find_by_name(app_choice)
+    puts "Your '#{app_choice}' review is being deleted'"
+    puts ' '
+    Review.all.select do |review|
+      review.destroy if (review.id == @current_user.review_id && review.app_id == current_app.id)
+
+
+
+
+    end
+    current_app.total_reviews -= 1
+    Review.all.select do |review|
+      app_rating_total << review.rating if review.app_id == current_app.id
+    end
+    current_app.save
+    puts ' '
+    puts 'Your review was deleted successfully'
+    puts ' '
+    user_options
+  end
 
   def debug?
     puts 'Do you want to debug?'
