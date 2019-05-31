@@ -421,6 +421,7 @@ class CommandLineInterface
     user_options
   end
 
+  # Not active unlessed called in run file
   def debug?
     puts 'Do you want to debug?'
     response = gets.chomp
