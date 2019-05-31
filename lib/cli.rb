@@ -15,15 +15,16 @@ class CommandLineInterface
   end
 
   def choose_app
-    puts "If you have a specific app in mind, input it's name."
-    puts "Otherwise, see all apps available by typing 'list_all'"
+
+    puts "See all apps available by typing 'list'"
+    puts " "
     # app_arr = []
     # test = App.all.select {|app| app.name}
     # test_2 =  test.map {|test| test.name}
     #
     # puts test_2
     app_request = gets.chomp
-    if app_request == 'list_all'
+    if app_request == 'list'
       test = App.all.select do |app|
         print 'ID = '
         print app.id
@@ -61,48 +62,63 @@ class CommandLineInterface
       # print 'Category = '
       # print found_app_redux.category
       # puts ' '
-    elsif found_app = App.find_by_name(app_request)
-      print 'ID = '
-      print found_app.id
-      print ', '
-      print 'Name = '
-      print found_app.name
-      print ', '
-      print 'Category = '
-      print found_app.category
-      puts ' '
+
     else
-      puts 'Invalid input, try again!'
+      puts 'Invalid Input, Try Again!'
       choose_app
     end
+    puts " "
+    puts "If you'd like to search for reviews, Type 'Search Reviews'"
+    puts " "
+    response2 = gets.chomp
+    if response2 == 'Search Reviews'
+      find_reviews
+    else
+      puts "Invalid Input, You are being returned to the main menu"
     user_options
+  end
   end
 
   def user_options
     puts '_____________'
     puts 'What would you like to do next?'
     puts '_____________'
-    puts "Search through Apps? Type 'choose_app'"
-    puts "Review an App? Type 'review_app'"
-    puts "Check your reviews by typing 'my_reviews'"
-    puts "Search reviews per App by typing 'find_reviews'"
-    puts "Edit a review with 'change_review'"
-    puts "Delete a review with 'delete_review'"
+    puts "Search Options"
+    puts "===="
+    puts "Search through Apps? Type 'Search Apps'"
+    puts "Search reviews per App by typing 'Search Reviews'"
+    puts " "
+    puts "User Options"
+    puts "===="
+    puts "Review an App? Type 'New Review'"
+    puts "Check your reviews by typing 'My Reviews'"
+    puts "Edit a review with 'Change Review'"
+    puts "Delete a review with 'Delete Review'"
+    puts " "
+
+    menu_selection
+
+  end
+
+  def menu_selection
     response = gets.chomp
-    if response == 'choose_app'
+    if response == 'Search Apps'
       choose_app
-    elsif response == 'review_app'
+    elsif response == 'New Review'
       review_app
-    elsif response == 'my_reviews'
+    elsif response == 'My Reviews'
       my_reviews
-    elsif response == 'find_reviews'
+    elsif response == 'Search Reviews'
       find_reviews
-    elsif response == 'change_review'
+    elsif response == 'Change Review'
       change_review
-    elsif response == 'delete_review'
+    elsif response == 'Delete Review'
       delete_review
+    else puts "Invalid Input, Try Again!"
+      menu_selection
 
     end
+
   end
 
   def review_app
@@ -110,17 +126,29 @@ class CommandLineInterface
     new_review = Review.new
     puts "Type the name of the App you'd like to review"
     app_choice = gets.chomp
+  #   if App.all.name.to_s.include?(app_choice)
     current_app = App.find_by_name(app_choice)
+  # else
+  #   puts "Invalid Input, Try Again"
+  #   review_app
+  # end
+
     puts "You have chosen to review #{app_choice}"
     puts 'Please write your review'
     new_review_content = gets.chomp
     puts 'Please give a rating beween 1 and 5'
     new_review_rating = gets.chomp
     puts "This is what you've submitted so far"
+    puts "+++++++"
     puts app_choice
+    puts " "
     puts new_review_content
+    puts " "
     puts "Rating: #{new_review_rating}"
-    puts 'Would you like to save this review?'
+    puts "+++++++"
+    puts " "
+    puts "Would you like to save this review? Type 'Y' for yes"
+    puts "Press any other key and press 'Enter' to try again"
     response = gets.chomp
     if response == 'Y'
       new_review.content = new_review_content
@@ -162,11 +190,25 @@ class CommandLineInterface
   def find_reviews
     puts "Which app's reviews would you like to check?"
     response = gets.chomp
+
     app_choice = App.find_by_name(response)
+  #   if App.all.name.to_s.include?(app_choice)
+    current_app = App.find_by_name(app_choice)
+  # else
+  #   puts "Invalid Input, Try Again"
+  #   find_reviews
+  # end
 
     current_reviews = Review.where(app_id: app_choice.id)
     puts '_______'
+    print 'ID = '
+    print app_choice.id
+    puts " "
     puts app_choice.name
+    puts " "
+    print "Category: "
+    print app_choice.category
+    puts " "
     print "Average Rating: #{app_choice.avg_rating}"
     puts ' '
     puts '_______'
@@ -189,8 +231,10 @@ class CommandLineInterface
       puts ' '
       puts ' '
     end
+    puts "Press any key and press 'Enter' to return to the Main Menu"
+    gets.chomp
     user_options
-      end
+  end
 
   def my_reviews
     puts '------------'
@@ -215,7 +259,7 @@ class CommandLineInterface
         puts ' '
       end
     end
-    puts "Press any key to return to the Main Menu"
+    puts "Press any key and press 'Enter' to return to the Main Menu"
     gets.chomp
     user_options
   end
@@ -246,6 +290,12 @@ class CommandLineInterface
     puts '------------'
     puts 'Which review would you like to change?'
     puts 'Please enter the App name'
+  #   if App.all.name.to_s.include?(app_choice)
+    # current_app = App.find_by_name(app_choice)
+  # else
+  #   puts "Invalid Input, Try Again"
+  #   change_review
+  # end
 
     app_rating_total = []
     new_review = Review.new
@@ -255,8 +305,6 @@ class CommandLineInterface
     Review.all.select do |review|
       review.destroy if (review.id == @current_user.review_id && review.app_id == current_app.id)
 
-        
-
     end
     puts "____"
     puts "You have chosen to change your review for #{app_choice}"
@@ -265,10 +313,16 @@ class CommandLineInterface
     puts 'Please give a rating beween 1 and 5'
     new_review_rating = gets.chomp
     puts "This is what you've submitted so far"
+    puts "+++++++"
     puts app_choice
+    puts " "
     puts new_review_content
+    puts " "
     puts "Rating: #{new_review_rating}"
-    puts 'Would you like to save this review?'
+    puts "+++++++"
+    puts " "
+    puts "Would you like to save this review? Type 'Y' for yes"
+    puts "Press any other key and press 'Enter' to try again"
     response = gets.chomp
     if response == 'Y'
       new_review.content = new_review_content
@@ -302,8 +356,10 @@ class CommandLineInterface
 
     else
       puts 'Lets try again'
-      review_app
+      change_review
     end
+    puts "Press any key and press 'Enter' to return to the Main Menu"
+    gets.chomp
     user_options
   end
 
@@ -334,15 +390,20 @@ class CommandLineInterface
     puts '------------'
     puts 'Which review would you like to delete?'
     puts 'Please enter the App name'
+    # if App.all.name.to_s.include?(app_choice)
+    # current_app = App.find_by_name(app_choice)
+    # else
+    # puts "Invalid Input, Try Again"
+    # delete_review
+    # end
+
+
     app_choice = gets.chomp
     current_app = App.find_by_name(app_choice)
     puts "Your '#{app_choice}' review is being deleted'"
     puts ' '
     Review.all.select do |review|
       review.destroy if (review.id == @current_user.review_id && review.app_id == current_app.id)
-
-
-
 
     end
     current_app.total_reviews -= 1
@@ -352,7 +413,11 @@ class CommandLineInterface
     current_app.save
     puts ' '
     puts 'Your review was deleted successfully'
+    puts " "
+    puts "Press any key and press 'Enter' to return to the Main Menu"
+    gets.chomp
     puts ' '
+
     user_options
   end
 
@@ -386,7 +451,7 @@ class CommandLineInterface
     else
       puts 'Please try again'
       new_user
+    end
+  user_options
   end
-    user_options
-end
 end
