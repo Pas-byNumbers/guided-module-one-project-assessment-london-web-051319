@@ -421,6 +421,7 @@ class CommandLineInterface
     user_options
   end
 
+  # Not active unlessed called in run file
   def debug?
     puts 'Do you want to debug?'
     response = gets.chomp
@@ -432,7 +433,35 @@ class CommandLineInterface
     end
   end
 
+  def existing_user
+    puts "Please enter your name"
+    name_req = gets.chomp
+
+    User.all.each do |user|
+      if user.name == name_req
+        @current_user = user
+      end
+    end
+
+
+    if @current_user == nil
+
+      puts "Not valid, Try again"
+      new_user
+    else
+      user_options
+    end
+  end
+
   def new_user
+    puts "Are you an existing user?"
+    puts "Input 'Y' for yes and 'N' for no"
+    response2 = gets.chomp
+    if response2 == 'Y'
+      existing_user
+
+    end
+
     @current_user = User.new
     puts 'Please enter your name'
     new_name = gets.chomp

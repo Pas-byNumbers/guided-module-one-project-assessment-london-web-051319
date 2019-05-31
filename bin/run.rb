@@ -1,6 +1,6 @@
 require_relative '../config/environment'
 
-puts "run.rb has been executed"
+puts "Your Program is Launching..."
 
 cli = CommandLineInterface.new
 cli.greet
